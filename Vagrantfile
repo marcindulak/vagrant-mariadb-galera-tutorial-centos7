@@ -2,6 +2,7 @@
 # vi: set ft=ruby :
 
 MARIADBVER="10.1"
+SST_PASSWORD="SST_PASSWORD"
 
 hosts = {
   'node0' => {'hostname' => 'node0', 'ip' => '192.168.10.10', 'mac' => '080027001010'},
@@ -173,20 +174,22 @@ SCRIPT
         hosts.keys.sort.each do |k|
           node.vm.provision 'shell' do |s|
             s.inline = $etc_hosts
-            s.args   = hosts[k]['ip'] + ' ' + hosts[k]['hostname']
+            s.args   = [hosts[k]['ip'], hosts[k]['hostname']]
           end
         end
         node.vm.provision :shell, :inline => $setenforce_0, run: 'always'
         node.vm.provision 'shell' do |s|
           s.inline = $mariadb_el
-          s.args   = MARIADBVER
+          s.args   = [MARIADBVER]
         end
         node.vm.provision :file, source: '~/.vagrant.d/insecure_private_key', destination: '~vagrant/.ssh/id_rsa'
         node.vm.provision 'shell' do |s|
           s.inline = $ifcfg
-          s.args   = hosts[host]['ip'] + ' 255.255.255.0 eth1 Ethernet'
+          s.args   = [hosts[host]['ip'], '255.255.255.0', 'eth1', 'Ethernet']
         end
         node.vm.provision :shell, :inline => 'ifup eth1', run: 'always'
+        # restarting network fixes RTNETLINK answers: File exists
+        node.vm.provision :shell, :inline => 'systemctl restart network'
         # prepare database partition
         node.vm.provision :shell, :inline => 'mkfs.ext4 -F /dev/sdb'
         node.vm.provision :shell, :inline => 'echo /dev/sdb /var/lib/mysql ext4 defaults >> /etc/fstab'
@@ -200,7 +203,7 @@ SCRIPT
         node.vm.provision :shell, :inline => 'systemctl start mariadb'
         node.vm.provision 'shell' do |s|
           s.inline = $mysql_sst
-          s.args   = 'SST_PASSWORD'
+          s.args   = [SST_PASSWORD]
         end
         node.vm.provision :shell, :inline => $mysql_secure_installation
         # deciding which node starts first is left to the human ...
@@ -209,7 +212,7 @@ SCRIPT
         node.vm.provision :shell, :inline => 'chkconfig mysql off'
         node.vm.provision 'shell' do |s|
           s.inline = $etc_my_cnf_d_server_cnf
-          s.args   = hosts[host]['ip'] + ' ' + hosts[host]['hostname'] + ' SST_PASSWORD' + ' ' + hosts.keys.sort.to_a.join(',').gsub('client0', '').gsub(/^,/, '').gsub(/,$/, '')
+          s.args   = [hosts[host]['ip'], hosts[host]['hostname'], SST_PASSWORD, hosts.keys.sort.to_a.join(',').gsub('client0', '').gsub(/^,/, '').gsub(/,$/, '')]
         end
         # install and enable ntp
         node.vm.provision :shell, :inline => 'yum -y install ntp'
@@ -225,15 +228,17 @@ SCRIPT
         hosts.keys.sort.each do |k|
           client.vm.provision 'shell' do |s|
             s.inline = $etc_hosts
-            s.args   = hosts[k]['ip'] + ' ' + hosts[k]['hostname']
+            s.args   = [hosts[k]['ip'],  hosts[k]['hostname']]
           end
         end
         client.vm.provision :file, source: '~/.vagrant.d/insecure_private_key', destination: '~vagrant/.ssh/id_rsa'
         client.vm.provision 'shell' do |s|
           s.inline = $ifcfg
-          s.args   = hosts[host]['ip'] + ' 255.255.255.0 eth1 Ethernet'
+          s.args   = [hosts[host]['ip'] , '255.255.255.0', 'eth1', 'Ethernet']
         end
         client.vm.provision :shell, :inline => 'ifup eth1', run: 'always'
+        # restarting network fixes RTNETLINK answers: File exists
+        client.vm.provision :shell, :inline => 'systemctl restart network'
         # install and enable ntp
         client.vm.provision :shell, :inline => 'yum -y install ntp'
         client.vm.provision :shell, :inline => 'systemctl enable ntpd'
