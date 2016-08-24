@@ -190,6 +190,7 @@ SCRIPT
         node.vm.provision :shell, :inline => 'ifup eth1', run: 'always'
         # restarting network fixes RTNETLINK answers: File exists
         node.vm.provision :shell, :inline => 'systemctl restart network'
+        node.vm.provision :shell, :inline => $linux_disable_ipv6, run: 'always'
         # prepare database partition
         node.vm.provision :shell, :inline => 'mkfs.ext4 -F /dev/sdb'
         node.vm.provision :shell, :inline => 'echo /dev/sdb /var/lib/mysql ext4 defaults >> /etc/fstab'
@@ -239,6 +240,7 @@ SCRIPT
         client.vm.provision :shell, :inline => 'ifup eth1', run: 'always'
         # restarting network fixes RTNETLINK answers: File exists
         client.vm.provision :shell, :inline => 'systemctl restart network'
+        client.vm.provision :shell, :inline => $linux_disable_ipv6, run: 'always'
         # install and enable ntp
         client.vm.provision :shell, :inline => 'yum -y install ntp'
         client.vm.provision :shell, :inline => 'systemctl enable ntpd'
