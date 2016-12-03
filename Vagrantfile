@@ -30,14 +30,14 @@ Vagrant.configure(2) do |config|
             v.customize ['createhd', '--filename', disk, '--size', 384, '--variant', 'Fixed']
             v.customize ['modifyhd', disk, '--type', 'writethrough']
           end
-          v.customize ['storageattach', :id, '--storagectl', 'IDE Controller', '--port', 0, '--device', 1, '--type', 'hdd', '--medium', disk]
+          v.customize ['storageattach', :id, '--storagectl', 'IDE', '--port', 0, '--device', 1, '--type', 'hdd', '--medium', disk]
           # sdc block device for Galera swap
           disk = hosts[host]['hostname'] + 'sdc.vdi'
           if !File.exist?(disk)
             v.customize ['createhd', '--filename', disk, '--size', 256, '--variant', 'Fixed']
             v.customize ['modifyhd', disk, '--type', 'writethrough']
           end
-          v.customize ['storageattach', :id, '--storagectl', 'IDE Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', disk]
+          v.customize ['storageattach', :id, '--storagectl', 'IDE', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', disk]
         end
       end
     end
