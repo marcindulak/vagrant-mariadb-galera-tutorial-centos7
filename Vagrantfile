@@ -11,6 +11,8 @@ hosts = {
   'client0' => {'hostname' => 'client0', 'ip' => '192.168.10.100', 'mac' => '080027000100'}
 }
 
+CONTROLLER = ENV.fetch('CONTROLLER', 'IDE Controller')
+
 Vagrant.configure(2) do |config|
   hosts.keys.sort.each do |host|
     if host.start_with?("node")
@@ -30,14 +32,14 @@ Vagrant.configure(2) do |config|
             v.customize ['createhd', '--filename', disk, '--size', 384, '--variant', 'Fixed']
             v.customize ['modifyhd', disk, '--type', 'writethrough']
           end
-          v.customize ['storageattach', :id, '--storagectl', 'IDE Controller', '--port', 0, '--device', 1, '--type', 'hdd', '--medium', disk]
+          v.customize ['storageattach', :id, '--storagectl', CONTROLLER, '--port', 0, '--device', 1, '--type', 'hdd', '--medium', disk]
           # sdc block device for Galera swap
           disk = hosts[host]['hostname'] + 'sdc.vdi'
           if !File.exist?(disk)
             v.customize ['createhd', '--filename', disk, '--size', 256, '--variant', 'Fixed']
             v.customize ['modifyhd', disk, '--type', 'writethrough']
           end
-          v.customize ['storageattach', :id, '--storagectl', 'IDE Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', disk]
+          v.customize ['storageattach', :id, '--storagectl', CONTROLLER, '--port', 1, '--device', 0, '--type', 'hdd', '--medium', disk]
         end
       end
     end
