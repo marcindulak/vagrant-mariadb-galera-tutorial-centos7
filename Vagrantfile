@@ -19,7 +19,7 @@ Vagrant.configure(2) do |config|
       config.vm.define hosts[host]['hostname'] do |node|
         node.vm.box = 'centos/7'
         node.vm.box_url = 'centos/7'
-        node.vm.synced_folder '.', '/home/vagrant/sync', disabled: true
+        node.vm.synced_folder '.', '/vagrant', disabled: true
         node.vm.network 'private_network', ip: hosts[host]['ip'], mac: hosts[host]['mac'], auto_config: false
         node.vm.provider 'virtualbox' do |v|
           v.memory = 256
@@ -49,7 +49,7 @@ Vagrant.configure(2) do |config|
       config.vm.define hosts[host]['hostname'] do |client|
         client.vm.box = 'centos/7'
         client.vm.box_url = 'centos/7'
-        client.vm.synced_folder '.', '/home/vagrant/sync', disabled: true
+        client.vm.synced_folder '.', '/vagrant', disabled: true
         client.vm.network 'private_network', ip: hosts[host]['ip'], mac: hosts[host]['mac'], auto_config: false
         client.vm.provider 'virtualbox' do |v|
           v.memory = 256
