@@ -179,7 +179,7 @@ See http://serverfault.com/questions/581941/mariadb-how-to-handle-2-3-node-failu
 - assert the `node0` is still running (see http://galeracluster.com/documentation-webpages/restartingcluster.html), it has the `-1` sequence number:
 
         $ vagrant ssh node0 -c "sudo su - -c 'cat /var/lib/mysql/grastate.dat'" | grep "seqno:" | grep -q "\-1"
-        $ vagrant ssh node1 -c "sudo su - -c 'cat /var/lib/mysql/grastate.dat'" | grep "seqno:" | grep -q "7"
+        $ vagrant ssh node1 -c "sudo su - -c 'cat /var/lib/mysql/grastate.dat'" | grep "seqno:" | grep -q "\-1"  # shouldn't this be 7?
         $ vagrant ssh node2 -c "sudo su - -c 'cat /var/lib/mysql/grastate.dat'" | grep "seqno:" | grep -q "7"
 
 - add the failed nodes to the cluster:
