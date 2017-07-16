@@ -1,7 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-MARIADBVER="10.2"
+MARIADBVER="10.3"
 SST_PASSWORD="SST_PASSWORD"
 
 hosts = {
